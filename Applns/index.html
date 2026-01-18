@@ -9,5 +9,9 @@
     <source> </source>
     <h5>Hello Vite!</h5>
 </body>
-<script type="module" src="main.js"></script>
+<script>
+    import classes from "./style.module.css";
+    document.querySelector("h5").classList.add( classes.h5);
+
+</script>
 </html>
