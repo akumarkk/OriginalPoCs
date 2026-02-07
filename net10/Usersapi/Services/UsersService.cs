@@ -9,7 +9,7 @@ public class UsersService
         return _users;
     }
 
-    public List<User> AddUser(User user)
+    public User AddUser(User user)
     {
         _users.Add(user);
         return user;
