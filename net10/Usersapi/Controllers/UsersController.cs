@@ -6,8 +6,8 @@ namespace Usersapi;
 [Route("api/[controller]")]
 public class UsersController: ControllerBase
 {
-    UsersService _usersService;
-    public UsersController(UsersService usersService)
+    IUsersService _usersService;
+    public UsersController(IUsersService usersService)
     {
         _usersService = usersService;
     }
@@ -23,6 +23,6 @@ public class UsersController: ControllerBase
     public ActionResult<User> PostUser([FromBody] User user )
     {
         _usersService.AddUser(user);
-        return Ok(user);
+        return CreatedAtAction(nameof(PostUser), user);
     }
 }
