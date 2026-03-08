@@ -1,73 +1,36 @@
 # React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React's default behavior is:
 
-Currently, two official plugins are available:
+When a parent component re-renders, ALL its children re-render too (the component function runs again)
+React then checks if the output changed using its diffing algorithm
+If nothing changed, the DOM doesn't get updated
+In your case:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+ReRenderDemo re-renders → DisplayNames re-renders → DisplayName re-renders
+But since DisplayName's props (name) stay the same, the virtual DOM is identical
+So the actual DOM doesn't change (which is why you don't see visual changes)
 
-## React Compiler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+###### ReRender
+Re-render = the component function runs and React creates a virtual DOM representation
 
-## Expanding the ESLint configuration
+This is what happens when a parent re-renders, causing all children to re-render
+The component code executes again
+DOM update/repaint = React actually updates the real DOM and the browser repaints the screen
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+This only happens if the virtual DOM differs from the previous one
+This is what users actually see
+Example flow:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+You click button → setCount called → ReRenderDemo re-renders
+ReRenderDemo function runs → DisplayNames re-renders
+DisplayNames function runs → DisplayName re-renders
+DisplayName function runs, returns the same JSX (props didn't change)
+Re-render happened (functions executed) ✅
+But DOM update didn't happen (virtual DOM same as before) ❌
+So in your case:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+dnCount increments (the function ran) → re-render happened
+But you see the same display on screen → no DOM update
+This is why optimization matters - unnecessary re-renders waste CPU cycles even if they don't update the DOM. With React.memo, you prevent step 3 entirely if props haven't changed.
