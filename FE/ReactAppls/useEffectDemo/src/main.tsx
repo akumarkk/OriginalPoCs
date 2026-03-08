@@ -4,7 +4,8 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import { UseEffectDemo } from './Pages/useEffectDemo'
-import { ReRenderDemo } from './Pages/reRenderDemo.tsx'
+import { ReRenderWithMemoDemo } from './Pages/reRenderWithMemoDemo.tsx'
+import { ReRenderNoMemoDemo } from './Pages/reRenderNoMemoDemo.tsx'
 
 
 createRoot(document.getElementById('root')!).render(
@@ -12,7 +13,8 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
     <Routes>
       <Route path="/use-effect-demo" element={<UseEffectDemo />} />
-      <Route path="/rerender-demo" element={<ReRenderDemo />} />
+      <Route path="/rerender-memo-demo" element={<ReRenderWithMemoDemo />} />
+      <Route path="/rerender-no-memo-demo" element={<ReRenderNoMemoDemo />} />
     </Routes>
     </BrowserRouter>
     <App />
