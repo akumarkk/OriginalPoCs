@@ -6,6 +6,7 @@ import App from './App.tsx'
 import { UseEffectDemo } from './Pages/useEffectDemo'
 import { ReRenderWithMemoDemo } from './Pages/reRenderWithMemoDemo.tsx'
 import { ReRenderNoMemoDemo } from './Pages/reRenderNoMemoDemo.tsx'
+import { ReRenderWithCallbackDemo } from './Pages/reRenderWithCallbackDemo.tsx'
 
 
 createRoot(document.getElementById('root')!).render(
@@ -13,6 +14,7 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
     <Routes>
       <Route path="/use-effect-demo" element={<UseEffectDemo />} />
+      <Route path="/rerender-callback-demo" element={<ReRenderWithCallbackDemo />} />
       <Route path="/rerender-memo-demo" element={<ReRenderWithMemoDemo />} />
       <Route path="/rerender-no-memo-demo" element={<ReRenderNoMemoDemo />} />
     </Routes>
