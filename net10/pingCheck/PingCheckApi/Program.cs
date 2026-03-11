@@ -9,7 +9,8 @@ builder.Services.AddOpenApi();
 builder.Services.AddHttpClient(); // Required for our IHttpClientFactory
 
 builder.Services.AddHealthChecks()
-    .AddCheck<AircraftInfoApiHealthCheckService>("AircraftInfoApiHealthCheckService");
+    .AddCheck<AircraftInfoApiHealthCheckService>("AircraftInfoApiHealthCheckService")
+    .AddCheck<BingAircraftInfoApiHealthCheckService>("BingAircraftInfoApiHealthCheckService");
 
 var app = builder.Build();
 
