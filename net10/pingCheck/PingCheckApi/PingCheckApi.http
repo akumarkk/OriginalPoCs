@@ -1,0 +1,13 @@
+@PingCheckApi_HostAddress = http://localhost:5223
+
+#if (EnableOpenAPI)
+GET {{PingCheckApi_HostAddress}}/openapi/v1.json
+Accept: application/json
+
+###
+#endif
+
+GET {{PingCheckApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
