@@ -16,7 +16,6 @@ if (string.IsNullOrWhiteSpace(tokenToValidate))
 }
 
 // 1. Setup the Configuration Manager to fetch the Public Keys
-
 var authority = Environment.GetEnvironmentVariable("AUTHORITY_URL") ?? "";
 var configurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(
     $"{authority}/.well-known/openid-configuration",
