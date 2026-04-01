@@ -15,6 +15,38 @@ if (string.IsNullOrWhiteSpace(tokenToValidate))
     return;
 }
 
+try 
+        {
+            var service = new TokenIntrospectionService();
+
+            Console.WriteLine("--- Secure Token Introspector ---");
+            Console.Write("Enter Token: ");
+            string? token = tokenToValidate;
+
+            if (string.IsNullOrEmpty(token)) return;
+
+            var result = await service.IntrospectAsync(token);
+
+            if (result != null && result.active)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("\n[✓] Token is Valid");
+                Console.ResetColor();
+                Console.WriteLine($"Subject: {result.sub}");
+                Console.WriteLine($"Scopes:  {result.scope}");
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\n[X] Token is Invalid or Expired");
+                Console.ResetColor();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Config Error: {ex.Message}");
+        }
+
 // 1. Setup the Configuration Manager to fetch the Public Keys
 var authority = Environment.GetEnvironmentVariable("AUTHORITY_URL") ?? "";
 var configurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(
