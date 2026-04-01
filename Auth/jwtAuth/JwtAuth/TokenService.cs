@@ -39,6 +39,7 @@ public class TokenIntrospectionService
         if (!response.IsSuccessStatusCode) return null;
 
         var content = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"content {content}");
         return JsonSerializer.Deserialize<IntrospectionResponse>(content);
     }
 }
