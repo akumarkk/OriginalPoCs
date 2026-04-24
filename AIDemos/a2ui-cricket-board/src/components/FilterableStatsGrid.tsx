@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { Search } from 'lucide-react'; // Great for icons
+import { z } from 'zod';
 
-interface Stat {
-  label: string;
-  value: string | number;
-}
+export const FilterableStatsGridPropsSchema = z.object({
+  stats: z.array(z.object({
+    label: z.string().describe('The name of the statistic.'),
+    value: z.union([z.string(), z.number()]).describe('The value of the statistic.'),
+  })).describe('The statistics to display.'),
+  title: z.string().optional().describe('The header title for the grid.'),
+});
 
-interface FilterableStatsProps {
-  stats: Stat[];
-  title?: string;
-}
+export type FilterableStatsProps = z.infer<typeof FilterableStatsGridPropsSchema>;
 
 export const FilterableStatsGrid = ({ stats, title = "Statistics" }: FilterableStatsProps) => {
   const [searchTerm, setSearchTerm] = useState("");

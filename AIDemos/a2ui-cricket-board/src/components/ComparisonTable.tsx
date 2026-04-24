@@ -1,7 +1,16 @@
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from '@tanstack/react-table';
+import { z } from 'zod';
 
-export const ComparisonTable = ({ data, columns }) => {
-  const table = useReactTable({
+// Define and export the Zod schema for the component props
+export const ComparisonTablePropsSchema = z.object({
+  data: z.array(z.record(z.any())).describe('The data rows for the table.'),
+  columns: z.array(z.any()).describe('The column definitions for the table.'),
+});
+
+export type ComparisonTableProps = z.infer<typeof ComparisonTablePropsSchema>;
+
+export const ComparisonTable = ({ data, columns }: ComparisonTableProps) => {
+  const table = useReactTable<any>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),

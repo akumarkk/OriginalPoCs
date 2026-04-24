@@ -1,4 +1,4 @@
-import { A2UISurface, createCatalog } from '@a2ui/react';
+import { createCatalog } from '@copilotkit/a2ui-renderer';
 
 // Create a reusable component for your legends
 const PlayerCard = ({ name, nickname, stats, achievement }: any) => (
