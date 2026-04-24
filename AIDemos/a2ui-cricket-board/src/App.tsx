@@ -5,12 +5,10 @@ import { Catalog } from './Catalog'
 
 function App() {
   return (
-    <A2UIProvider>
+    <A2UIProvider catalog={Catalog}>
       <div className="App">
         <h1>Cricket Legends Dashboard</h1>
-        <A2UIRenderer 
-          catalog={Catalog} 
-        />
+        <A2UIRenderer surfaceId="cricket-dashboard" />
       </div>
     </A2UIProvider>
   );
