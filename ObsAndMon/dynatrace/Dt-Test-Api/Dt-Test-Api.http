@@ -1,0 +1,11 @@
+@Dt_Test_Api_HostAddress = http://localhost:5247
+
+GET {{Dt_Test_Api_HostAddress}}/openapi/v1.json
+Accept: application/json
+
+###
+
+GET {{Dt_Test_Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
