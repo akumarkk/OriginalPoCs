@@ -45,7 +45,7 @@ class Program
         Console.WriteLine("Sending a test log to Dynatrace...");
 
         // Send a structured log line
-        logger.LogInformation("Hello Dynatrace! This is a test log from my local .NET OpenTelemetry Console App at {Time}", DateTime.UtcNow);
+        logger.LogInformation("Hello Dn! msg from FliOps teams {Time}", DateTime.UtcNow);
 
         // Force OpenTelemetry to flush its memory buffer over the network before the console app closes
         Console.WriteLine("Flushing buffer... Please wait.");
