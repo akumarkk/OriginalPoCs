@@ -2,6 +2,7 @@ using Azure.Monitor.OpenTelemetry.Exporter;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Azure.Functions.Worker.OpenTelemetry;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenTelemetry;
@@ -11,6 +12,12 @@ using System.IO;
 using Microsoft.Extensions.Logging;
 
 var builder = FunctionsApplication.CreateBuilder(args);
+
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(AppContext.BaseDirectory)
+    .AddJsonFile("serilog.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables()
+    .Build();
 
 //  .MinimumLevel.Debug()
 //     // Filters out framework/host noise so your files don't bloat
@@ -30,7 +37,7 @@ var builder = FunctionsApplication.CreateBuilder(args);
 // Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
 
 Log.Logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration)
+    .ReadFrom.Configuration(configuration)
     .CreateLogger();
 
 builder.Services.AddLogging(loggingBuilder =>
