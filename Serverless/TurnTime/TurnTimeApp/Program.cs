@@ -5,30 +5,32 @@ using Microsoft.Azure.Functions.Worker.OpenTelemetry;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenTelemetry;
-using Microsoft.Azure.Functions.Worker.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Serilog;
-using Serilog.Events;
+using Serilog.Settings.Configuration;
+using System.IO;
+using Microsoft.Extensions.Logging;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
+//  .MinimumLevel.Debug()
+//     // Filters out framework/host noise so your files don't bloat
+//     .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+//     .MinimumLevel.Override("Worker", LogEventLevel.Warning)
+//     .MinimumLevel.Override("Host", LogEventLevel.Warning)
+//     .Enrich.FromLogContext()
+//     .WriteTo.Console()
+//     .WriteTo.File(
+//         path: "logs/function-log-.txt",
+//         rollingInterval: RollingInterval.Day,
+//         retainedFileCountLimit: 5
+//     )
 
 
+// var logPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "Logs", "function-logs-.txt"));
+// Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Debug()
-    // Filters out framework/host noise so your files don't bloat
-    .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-    .MinimumLevel.Override("Worker", LogEventLevel.Warning)
-    .MinimumLevel.Override("Host", LogEventLevel.Warning)
-    .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .WriteTo.File(
-        path: "logs/function-log-.txt",
-        rollingInterval: RollingInterval.Day,
-        retainedFileCountLimit: 5
-    )
+    .ReadFrom.Configuration(builder.Configuration)
     .CreateLogger();
 
 builder.Services.AddLogging(loggingBuilder =>

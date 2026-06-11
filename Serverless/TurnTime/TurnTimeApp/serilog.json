@@ -1,0 +1,27 @@
+{
+  "Serilog": {
+    "MinimumLevel": {
+      "Default": "Debug",
+      "Override": {
+        "Microsoft": "Warning",
+        "Worker": "Warning",
+        "Host": "Warning"
+      }
+    },
+    "Enrich": [ "FromLogContext" ],
+    "WriteTo": [
+      {
+        "Name": "Console"
+      },
+      {
+        "Name": "File",
+        "Args": {
+          "path": "Logs/function-logs-.txt",
+          "rollingInterval": "Day",
+          "retainedFileCountLimit": 5
+        }
+      }
+    ]
+  },
+  "LogPath": "Logs/function-logs-.txt"
+}
