@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # 1. Your OpenTelemetry Collector
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.154.0
+    container_name: otel-collector
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./otel-config.yml:/etc/otelcol/config.yaml
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+    depends_on:
+      - jaeger
+      - openobserve
+
+  # 2. Jaeger UI (For querying Traces)
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    ports:
+      - "16686:16686" # Jaeger Web UI Port
+
+  # 3. OpenObserve (For an instant Log/Metric UI dashboard)
+  openobserve:
+    image: openobserve/openobserve:latest
+    container_name: openobserve
+    command: ["/openobserve", "node", "online"]
+    environment:
+      - ZO_ROOT_USER_EMAIL=admin@example.com
+      - ZO_ROOT_USER_PASSWORD=Password1234
+      - ZO_NODE_ROLE=all
+    ports:
+      - "5080:5080" # OpenObserve Web UI Port

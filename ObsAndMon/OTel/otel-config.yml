@@ -1,0 +1,95 @@
+# ==============================================================================
+# 1. RECEIVERS: How data gets IN to the collector
+# ==============================================================================
+receivers:
+  # Standard OpenTelemetry Protocol (OTLP) receiver
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+  # Example: Scraping host metrics (CPU, Memory, Disk) from the local machine
+  hostmetrics:
+    collection_interval: 10s
+    scrapers:
+      cpu:
+      memory:
+      disk:
+
+# ==============================================================================
+# 2. PROCESSORS: How data is modified/managed inside the collector
+# ==============================================================================
+processors:
+  # The batch processor aggregates data points to optimize network requests
+  batch:
+    send_batch_size: 8192
+    timeout: 5s
+    send_batch_max_size: 10240
+
+  # Protects collector memory from running out under heavy spikes
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 75
+    spike_limit_percentage: 15
+
+# ==============================================================================
+# 3. EXPORTERS: Where the data is sent OUT to
+# ==============================================================================
+exporters:
+  # Prints highly detailed data directly to the collector's console log
+  debug:
+    verbosity: normal
+
+  # Dumps human-readable JSON files locally for validation
+  # file:
+  #   path: ./local_telemetry_dump.json
+  # Route traces to the local Jaeger container
+  otlp/jaeger:
+    endpoint: "jaeger:14250"
+    tls:
+      insecure: true
+
+  otlphttp/openobserve:
+    # "openobserve" is the name of the container inside your docker-compose file
+    endpoint: "http://openobserve:5080/api/default"
+    headers:
+      # HTTP Basic Auth header encoded for: admin@example.com:Password1234
+      Authorization: "Basic YWRtaW5AZXhhbXBsZS5jb206UGFzc3dvcmQxMjM0"
+
+  # Example: Sending data over to a remote central OTel Collector or vendor
+  # otlp/secure:
+  #   endpoint: "api.your-observability-vendor.com:4317"
+  #   headers:
+  #     "Authorization": "Bearer ${env:YOUR_API_TOKEN}"
+
+# ==============================================================================
+# 4. SERVICE PIPELINES: Activating and connecting the components
+# ==============================================================================
+service:
+  # Enables administrative features like health checks
+  extensions: []
+  
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [debug, otlphttp/openobserve, otlp/jaeger]
+
+    metrics:
+      receivers: [otlp, hostmetrics]
+      processors: [memory_limiter, batch]
+      exporters: [debug, otlphttp/openobserve]
+
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [debug, otlphttp/openobserve]
+
+  # Configuration for the internal health & metrics of the collector itself
+  telemetry:
+    logs:
+      level: "info"
+    metrics:
+      level: none
