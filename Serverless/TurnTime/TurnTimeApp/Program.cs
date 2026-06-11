@@ -14,6 +14,8 @@ using  Microsoft.Extensions.Hosting;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
+builder.Configuration.AddEnvironmentVariables();
+
 // Get the project root directory (go up from bin/output to the project root)
 var logDirectory = Path.GetFullPath(Path.Combine(
     AppContext.BaseDirectory,
