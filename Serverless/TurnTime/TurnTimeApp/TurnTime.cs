@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace TurnTimeApp;
 
@@ -20,8 +21,18 @@ public class TurnTime
         FunctionContext executionContext)
     {
         var invocationId = executionContext.InvocationId;
-        _logger.LogInformation("HelloTurnTimeFunction:  HTTP trigger function processed a request.");
-        _logger.LogInformation("Req: {Property1}, {Property2} {Activityid}", req?.Method, req?.Path, Activity.Current?.Id ?? invocationId);
-        return new OkObjectResult("Welcome to Azure Functions!");
+        _logger.LogInformation("HelloTurnTimeFunction: HTTP trigger function processed a request.");
+        _logger.LogInformation("Req: {Method}, {Path} {ActivityId}", req?.Method, req?.Path, Activity.Current?.Id ?? invocationId);
+
+        var assembly = typeof(TurnTime).Assembly;
+        var version = assembly.GetName().Version?.ToString() ?? "unknown";
+        var assemblyName = assembly.GetName().Name ?? "TurnTimeApp";
+
+        return new OkObjectResult(new
+        {
+            message = "Welcome to Azure Functions!",
+            assembly = assemblyName,
+            version = version
+        });
     }
 }
