@@ -43,7 +43,19 @@ Log.Logger = new LoggerConfiguration()
 builder.Services.AddLogging(loggingBuilder =>
 {
     loggingBuilder.ClearProviders(); // Removes default console logger
-    loggingBuilder.AddSerilog(dispose: true);
+    // Add Microsoft's built-in JSON console logger
+    loggingBuilder.AddJsonConsole(options =>
+    {
+        options.IncludeScopes = true;
+        options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
+        options.JsonWriterOptions = new System.Text.Json.JsonWriterOptions
+        {
+            Indented = true // Set to false in production for better performance/smaller log sizes
+        };
+    });
+
+    // causing duplicate metadata issue
+    //loggingBuilder.AddSerilog(dispose: true);
 });
 
 builder.ConfigureFunctionsWebApplication();
