@@ -9,12 +9,14 @@ using OpenTelemetry;
 using Serilog;
 using Serilog.Settings.Configuration;
 using System.IO;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 using  Microsoft.Extensions.Hosting;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
+ValidateDynatraceEnvironmentVariables();
 
 // Get the project root directory (go up from bin/output to the project root)
 var logDirectory = Path.GetFullPath(Path.Combine(
@@ -32,22 +34,25 @@ var configuration = new ConfigurationBuilder()
     .AddEnvironmentVariables()
     .Build();
 
-//  .MinimumLevel.Debug()
-//     // Filters out framework/host noise so your files don't bloat
-//     .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-//     .MinimumLevel.Override("Worker", LogEventLevel.Warning)
-//     .MinimumLevel.Override("Host", LogEventLevel.Warning)
-//     .Enrich.FromLogContext()
-//     .WriteTo.Console()
-//     .WriteTo.File(
-//         path: "logs/function-log-.txt",
-//         rollingInterval: RollingInterval.Day,
-//         retainedFileCountLimit: 5
-//     )
+static void ValidateDynatraceEnvironmentVariables()
+{
+    var requiredVars = new[]
+    {
+        "DT_TENANT",
+        "DT_CLUSTER_ID",
+        "DT_CONNECTION_BASE_URL",
+        "DT_CONNECTION_AUTH_TOKEN"
+    };
 
+    var missingVars = requiredVars
+        .Where(name => string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(name)))
+        .ToList();
 
-// var logPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "Logs", "function-logs-.txt"));
-// Directory.CreateDirectory(Path.GetDirectoryName(logPath)!);
+    if (missingVars.Any())
+    {
+        throw new InvalidOperationException($"Missing required Dynatrace environment variables: {string.Join(", ", missingVars)}");
+    }
+}
 
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(configuration)
