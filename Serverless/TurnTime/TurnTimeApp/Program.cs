@@ -10,12 +10,24 @@ using Serilog;
 using Serilog.Settings.Configuration;
 using System.IO;
 using Microsoft.Extensions.Logging;
+using  Microsoft.Extensions.Hosting;
 
 var builder = FunctionsApplication.CreateBuilder(args);
+
+// Get the project root directory (go up from bin/output to the project root)
+var logDirectory = Path.GetFullPath(Path.Combine(
+    AppContext.BaseDirectory,
+    "..", // out of 'output'
+    ".." // out of 'bin'
+));
 
 var configuration = new ConfigurationBuilder()
     .SetBasePath(AppContext.BaseDirectory)
     .AddJsonFile("serilog.json", optional: false, reloadOnChange: true)
+    .AddInMemoryCollection(new Dictionary<string, string>
+    {
+        { "LogDirectory", logDirectory }
+    })
     .AddEnvironmentVariables()
     .Build();
 
@@ -59,6 +71,7 @@ builder.Services.AddLogging(loggingBuilder =>
     //loggingBuilder.AddSerilog(dispose: true);
 });
 
+builder.Services.AddSerilog(Log.Logger, dispose: true);
 builder.ConfigureFunctionsWebApplication();
 
 // builder.Services.AddOpenTelemetry()
