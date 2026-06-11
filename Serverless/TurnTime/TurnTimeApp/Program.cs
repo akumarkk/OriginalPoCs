@@ -21,13 +21,12 @@ var logDirectory = Path.GetFullPath(Path.Combine(
     ".." // out of 'bin'
 ));
 
+// Set environment variable for Serilog to use
+Environment.SetEnvironmentVariable("LOG_DIRECTORY", logDirectory);
+
 var configuration = new ConfigurationBuilder()
     .SetBasePath(AppContext.BaseDirectory)
     .AddJsonFile("serilog.json", optional: false, reloadOnChange: true)
-    .AddInMemoryCollection(new Dictionary<string, string>
-    {
-        { "LogDirectory", logDirectory }
-    })
     .AddEnvironmentVariables()
     .Build();
 

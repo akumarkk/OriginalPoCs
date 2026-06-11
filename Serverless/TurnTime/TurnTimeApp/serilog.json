@@ -16,7 +16,7 @@
       {
         "Name": "File",
         "Args": {
-          "path": "{LogDirectory}/Logs/function-logs-.txt",
+          "path": "%LOG_DIRECTORY%/Logs/function-logs-.txt",
           "rollingInterval": "Day",
           "retainedFileCountLimit": 5,
           "outputTemplate": "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
