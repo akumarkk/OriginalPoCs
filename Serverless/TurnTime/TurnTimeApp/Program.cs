@@ -43,6 +43,7 @@ Log.Logger = new LoggerConfiguration()
 builder.Services.AddLogging(loggingBuilder =>
 {
     loggingBuilder.ClearProviders(); // Removes default console logger
+    
     // Add Microsoft's built-in JSON console logger
     loggingBuilder.AddJsonConsole(options =>
     {

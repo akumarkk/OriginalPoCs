@@ -16,7 +16,7 @@
       {
         "Name": "File",
         "Args": {
-          "path": "Logs/function-logs-.txt",
+          "path": "bin/Logs/function-logs-.txt",
           "rollingInterval": "Day",
           "retainedFileCountLimit": 5
         }
