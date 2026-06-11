@@ -32,13 +32,15 @@ public class TurnTime
         var assembly = typeof(TurnTime).Assembly;
         var version = assembly.GetName().Version?.ToString() ?? "unknown";
         var assemblyName = assembly.GetName().Name ?? "TurnTimeApp";
+        var currentTimeUtc = DateTime.UtcNow;
 
         return new OkObjectResult(new
         {
             message = "Welcome to Azure Functions!",
             assembly = assemblyName,
             version = version,
-            dtTenant
+            dtTenant,
+            currentTimeUtc
         });
     }
 }

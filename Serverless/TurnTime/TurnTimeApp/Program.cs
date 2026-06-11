@@ -78,10 +78,24 @@ builder.Services.AddLogging(loggingBuilder =>
 });
 
 builder.Services.AddSerilog(Log.Logger, dispose: true);
+
+// builder.Services..AddOpenTelemetry()
+//         .WithTracing(tracing => tracing
+//             // .AddAzureFunctionsInstrumentation()
+//             .AddDynatrace()
+//             // ... if you need custom resources, set them after AddDynatrace
+//         );
+
 builder.ConfigureFunctionsWebApplication();
 
 // builder.Services.AddOpenTelemetry()
-//     .UseFunctionsWorkerDefaults()
-//     .UseAzureMonitorExporter();
+//     .WithTracing(tracing =>
+//     {
+//         // If you have the Dynatrace OpenTelemetry NuGet package installed,
+//         // ensure you have the correct 'using' statement for it at the top of the file.
+//         tracing.AddDynatrace();
+        
+//         // ... if you need custom resources, set them after AddDynatrace
+//     });
 
 builder.Build().Run();
