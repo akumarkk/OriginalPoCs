@@ -100,8 +100,8 @@ var otlpEndpoint = Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_ENDPOI
 var otlpHeaders = Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_HEADERS") ??
                   $"Authorization=Api-Token OTEL_TOKEN";
 
-const string serviceName = "TurnTimeApp";
-const string serviceVersion = "1.0.0";
+const string serviceName = "TurnTimeAppv7.1";
+const string serviceVersion = "1.0.2";
 
 // not required
 // builder.Logging.AddOpenTelemetry(options =>
@@ -123,16 +123,17 @@ const string serviceVersion = "1.0.0";
 
 builder.Services.AddOpenTelemetry()
     .ConfigureResource(resource => resource
-        .AddService(serviceName: "TurnTimeApp", serviceNamespace: "Serverless")
+        .AddService(serviceName: serviceName, serviceVersion: serviceVersion, serviceNamespace: "Serverless")
         // Instantiate the detector manually to completely bypass the missing extension method
         .AddDetector(new AppServiceResourceDetector()))
-        .WithTracing(tracing => tracing
-        .AddAspNetCoreInstrumentation() // Essential: Tracks the incoming HTTP calls
-        .AddOtlpExporter(options => 
-        {
-            options.Endpoint = new Uri(otlpEndpoint);
-            options.Headers = otlpHeaders;
-        }));;
+    .WithTracing(tracing =>
+    {
+        tracing.AddAspNetCoreInstrumentation(); // Essential: Tracks the incoming HTTP calls
+
+        // Use Dynatrace integration to avoid OTLP exporter assembly/version conflicts at runtime.
+        // `ValidateDynatraceEnvironmentVariables()` ensures required DT env vars are present.
+        tracing.AddDynatrace();
+    });
 
 
 // NOTE: We intentionally do not add the OpenTelemetry OTLP exporter here because

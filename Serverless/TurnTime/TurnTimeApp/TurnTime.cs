@@ -17,11 +17,11 @@ public class TurnTime
     }
 
     [Function("HelloTurnTimeFunction")]
-    public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "TurnTimev1")] HttpRequest req, 
+    public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "TurnTimeFuncv1")] HttpRequest req, 
         FunctionContext executionContext)
     {
         var invocationId = executionContext.InvocationId;
-        _logger.LogInformation("HelloTurnTimeFunctionv2: HTTP trigger function processed a request.");
+        _logger.LogInformation("HelloTurnTimeFunctionv5: HTTP trigger function processed a request.");
         _logger.LogInformation("Req: {Method}, {Path} {ActivityId}", req?.Method, req?.Path, Activity.Current?.Id ?? invocationId);
 
         var dtTenant = Environment.GetEnvironmentVariable("DT_TENANT");
