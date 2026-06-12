@@ -1,4 +1,5 @@
 using Azure.Monitor.OpenTelemetry.Exporter;
+using Dynatrace.OpenTelemetry;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Azure.Functions.Worker.OpenTelemetry;
@@ -15,7 +16,9 @@ using  Microsoft.Extensions.Hosting;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using OpenTelemetry.Logs;
-using OpenTelemetry.Exporter;
+using OpenTelemetry.ResourceDetectors.Azure;
+
+// OpenTelemetry.Exporter removed to avoid missing assembly reference
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
@@ -92,51 +95,51 @@ var tracesEndpoint = Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_TRAC
                       $"https://{dtTenantEnv}.live.dynatrace.com/api/v2/otlp/v1/traces";
 var logsEndpoint = Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_LOGS_ENDPOINT") ??
                    $"https://{dtTenantEnv}.live.dynatrace.com/api/v2/otlp/v1/logs";
+var otlpEndpoint = Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_ENDPOINT") ??
+                   $"https://{dtTenantEnv}.live.dynatrace.com/api/v2/otlp";
 var otlpHeaders = Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_HEADERS") ??
-                  $"Authorization=Api-Token {dtTokenEnv}";
+                  $"Authorization=Api-Token OTEL_TOKEN";
+
+const string serviceName = "TurnTimeApp";
+const string serviceVersion = "1.0.0";
+
+// not required
+// builder.Logging.AddOpenTelemetry(options =>
+// {
+//     options.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName, serviceVersion));
+//     options.AddOtlpExporter(); // reads OTEL_EXPORTER_OTLP_* from environment
+// });
+
+// Use Dynatrace integration for OpenTelemetry tracing to avoid OTLP exporter
+// assembly version conflicts. Traces will be sent via Dynatrace integration.
+// builder.Services.AddOpenTelemetry()
+//     .WithTracing(tracing => tracing
+//         .SetResourceBuilder(ResourceBuilder.CreateDefault()
+//             .AddService(serviceName, serviceVersion)
+//             .AddAzureFunctions()
+//             )
+//         .AddDynatrace()
+//     );
 
 builder.Services.AddOpenTelemetry()
-    .WithTracing(tracing => tracing
-        .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("TurnTimeApp"))
-        .AddHttpClientInstrumentation()
-        .AddAspNetCoreInstrumentation()
-        .AddOtlpExporter(o =>
+    .ConfigureResource(resource => resource
+        .AddService(serviceName: "TurnTimeApp", serviceNamespace: "Serverless")
+        // Instantiate the detector manually to completely bypass the missing extension method
+        .AddDetector(new AppServiceResourceDetector()))
+        .WithTracing(tracing => tracing
+        .AddAspNetCoreInstrumentation() // Essential: Tracks the incoming HTTP calls
+        .AddOtlpExporter(options => 
         {
-            o.Endpoint = new Uri(tracesEndpoint);
-            o.Protocol = OtlpExportProtocol.HttpProtobuf;
-            o.Headers = otlpHeaders;
-        }));
+            options.Endpoint = new Uri(otlpEndpoint);
+            options.Headers = otlpHeaders;
+        }));;
 
-builder.Logging.AddOpenTelemetry(options =>
-{
-    options.IncludeFormattedMessage = true;
-    options.ParseStateValues = true;
-    options.IncludeScopes = true;
-    options.AddOtlpExporter(o =>
-    {
-        o.Endpoint = new Uri(logsEndpoint);
-        o.Protocol = OtlpExportProtocol.HttpProtobuf;
-        o.Headers = otlpHeaders;
-    });
-});
 
-// builder.Services..AddOpenTelemetry()
-//         .WithTracing(tracing => tracing
-//             // .AddAzureFunctionsInstrumentation()
-//             .AddDynatrace()
-//             // ... if you need custom resources, set them after AddDynatrace
-//         );
+// NOTE: We intentionally do not add the OpenTelemetry OTLP exporter here because
+// mixing exporter packages caused a TypeLoadException in the runtime. Logs will
+// continue to be exported by Serilog's configured sinks (including the OpenTelemetry
+// Serilog sink if enabled in serilog.json).
 
 builder.ConfigureFunctionsWebApplication();
-
-// builder.Services.AddOpenTelemetry()
-//     .WithTracing(tracing =>
-//     {
-//         // If you have the Dynatrace OpenTelemetry NuGet package installed,
-//         // ensure you have the correct 'using' statement for it at the top of the file.
-//         tracing.AddDynatrace();
-        
-//         // ... if you need custom resources, set them after AddDynatrace
-//     });
 
 builder.Build().Run();

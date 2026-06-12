@@ -21,7 +21,7 @@ public class TurnTime
         FunctionContext executionContext)
     {
         var invocationId = executionContext.InvocationId;
-        _logger.LogInformation("HelloTurnTimeFunction: HTTP trigger function processed a request.");
+        _logger.LogInformation("HelloTurnTimeFunctionv2: HTTP trigger function processed a request.");
         _logger.LogInformation("Req: {Method}, {Path} {ActivityId}", req?.Method, req?.Path, Activity.Current?.Id ?? invocationId);
 
         var dtTenant = Environment.GetEnvironmentVariable("DT_TENANT");
