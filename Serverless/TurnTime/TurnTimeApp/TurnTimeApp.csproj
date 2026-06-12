@@ -11,6 +11,9 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+      <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.6.0" />
+      <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.5.0" />
+      <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.5.0" />
     <PackageReference Include="Dynatrace.OpenTelemetry" Version="1.337.1" />
     <PackageReference Include="Dynatrace.OpenTelemetry.Instrumentation.AzureFunctions.Core" Version="1.337.1" />
     <PackageReference Include="Dynatrace.OpenTelemetry.Instrumentation.AzureFunctions.Worker" Version="1.337.1" />

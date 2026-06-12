@@ -32,6 +32,13 @@
             "Authorization": "Api-Token %DT_CONNECTION_AUTH_TOKEN%"
           }
         }
+      },
+      {
+        "Name": "OpenTelemetry",
+        "Args": {
+          "Endpoint": "http://localhost:4318/v1/logs",
+          "Protocol": "HttpProtobuf"
+        }
       }
     ]
   }

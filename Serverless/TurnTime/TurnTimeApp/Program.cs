@@ -12,6 +12,10 @@ using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using  Microsoft.Extensions.Hosting;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Exporter;
 
 var builder = FunctionsApplication.CreateBuilder(args);
 
@@ -78,6 +82,43 @@ builder.Services.AddLogging(loggingBuilder =>
 });
 
 builder.Services.AddSerilog(Log.Logger, dispose: true);
+
+// Register OpenTelemetry tracing and logging exporters (OTLP) in addition to Serilog.
+// NOTE: Keeping both Serilog OpenTelemetry sink and the OpenTelemetry logging provider
+// will result in duplicate OTLP exports for logs.
+var dtTenantEnv = Environment.GetEnvironmentVariable("DT_TENANT") ?? string.Empty;
+var dtTokenEnv = Environment.GetEnvironmentVariable("DT_CONNECTION_AUTH_TOKEN") ?? string.Empty;
+var tracesEndpoint = Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_TRACES_ENDPOINT") ??
+                      $"https://{dtTenantEnv}.live.dynatrace.com/api/v2/otlp/v1/traces";
+var logsEndpoint = Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_LOGS_ENDPOINT") ??
+                   $"https://{dtTenantEnv}.live.dynatrace.com/api/v2/otlp/v1/logs";
+var otlpHeaders = Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_HEADERS") ??
+                  $"Authorization=Api-Token {dtTokenEnv}";
+
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing => tracing
+        .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("TurnTimeApp"))
+        .AddHttpClientInstrumentation()
+        .AddAspNetCoreInstrumentation()
+        .AddOtlpExporter(o =>
+        {
+            o.Endpoint = new Uri(tracesEndpoint);
+            o.Protocol = OtlpExportProtocol.HttpProtobuf;
+            o.Headers = otlpHeaders;
+        }));
+
+builder.Logging.AddOpenTelemetry(options =>
+{
+    options.IncludeFormattedMessage = true;
+    options.ParseStateValues = true;
+    options.IncludeScopes = true;
+    options.AddOtlpExporter(o =>
+    {
+        o.Endpoint = new Uri(logsEndpoint);
+        o.Protocol = OtlpExportProtocol.HttpProtobuf;
+        o.Headers = otlpHeaders;
+    });
+});
 
 // builder.Services..AddOpenTelemetry()
 //         .WithTracing(tracing => tracing
