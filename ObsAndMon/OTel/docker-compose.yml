@@ -26,10 +26,11 @@ services:
   openobserve:
     image: openobserve/openobserve:latest
     container_name: openobserve
-    command: ["/openobserve", "node", "online"]
     environment:
       - ZO_ROOT_USER_EMAIL=admin@example.com
-      - ZO_ROOT_USER_PASSWORD=Password1234
+      - ZO_ROOT_USER_PASSWORD=Password1234!
       - ZO_NODE_ROLE=all
+      - ZO_HTTP_PORT=5080
+      - ZO_BIND_ADDR=0.0.0.0
     ports:
-      - "5080:5080" # OpenObserve Web UI Port
+      - "5080:5080"

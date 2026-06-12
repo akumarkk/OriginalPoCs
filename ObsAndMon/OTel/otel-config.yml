@@ -56,7 +56,7 @@ exporters:
     endpoint: "http://openobserve:5080/api/default"
     headers:
       # HTTP Basic Auth header encoded for: admin@example.com:Password1234
-      Authorization: "Basic YWRtaW5AZXhhbXBsZS5jb206UGFzc3dvcmQxMjM0"
+      Authorization: "Basic YWRtaW5AZXhhbXBsZS5jb206UGFzc3dvcmQxMjM0IQ=="
 
   # Example: Sending data over to a remote central OTel Collector or vendor
   # otlp/secure:
