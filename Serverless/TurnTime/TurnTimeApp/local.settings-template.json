@@ -1,0 +1,19 @@
+{
+    "IsEncrypted": false,
+    "Values": {
+        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+        "LogPath": "Logs/function-logs-.txt",
+        "DT_TENANT": "",
+        "DT_CLUSTER_ID": "",
+        "DT_CONNECTION_BASE_URL": "https://.live.dynatrace.com",
+        "DT_CONNECTION_AUTH_TOKEN": "dt0a01.tenant.",
+        "OTEL_EXPORTER_OTLP_ENDPOINT": "https://.live.dynatrace.com/api/v2/otlp",
+        "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT": "https://.live.dynatrace.com/api/v2/otlp/v1/traces",
+        "OTEL_EXPORTER_OTLP_LOGS_ENDPOINT": "https://.live.dynatrace.com/api/v2/otlp/v1/logs",
+        "OTEL_EXPORTER_OTLP_PROTOCOL": "http/protobuf",
+        "OTEL_EXPORTER_OTLP_HEADERS": "Authorization=Api-Token dt0c01.MDBDOSGFXAUYL2UGTXRHRZM6.HAHA",
+        "OTEL_TOKEN": "dt0c01.MDBDOSGFXAUYL2UGTXRHRZM6.HAHA",
+        "OTEL_RESOURCE_ATTRIBUTES": "service.name=TurnTimeApp,service.namespace=Serverless"
+    }
+}
