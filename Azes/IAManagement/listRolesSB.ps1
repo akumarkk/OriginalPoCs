@@ -1,5 +1,5 @@
 param (
-    [string[]]$IdentityBaseName,
+    [string]$IdentityBaseName,
     [string[]]$Subs = @()
 )
 
