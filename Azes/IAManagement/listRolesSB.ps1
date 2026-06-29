@@ -1,20 +1,7 @@
-# 1. Configuration
-$IdentityName = ""
-$BaseName = ""
-$Environments = "test", "qa", "prod"
-$Subs =  @("85adbd32-c5a8-4897-b82d-92df3c40c5b4", 
-"43603d42-edb7-4565-8725-4d6e487b5f45",
-"de2f4084-7f76-406c-aadc-f089f07a603e"
-    )
-
-# Generate the list using a loop
-$IdentityList = foreach ($Env in $Environments) {
-    "{0}-{1}-identity" -f $BaseName, $Env
-}
-
-foreach($IdentityName in $IdentityList){
-    ListRole($IdentityName, $Subs)
-}
+param (
+    [string[]]$IdentityBaseName,
+    [string[]]$Subs = @()
+)
 
 function ListRole {
     param(
@@ -36,7 +23,7 @@ function ListRole {
     #$Subscriptions = az account list --query "[].id" -o tsv
 
     # 4. Iterate and list assignments
-    foreach ($SubId in $Subs) {
+    foreach ($SubId in $Subscriptions) {
         Write-Host "--- Checking Subscription: $SubId ---" -ForegroundColor Yellow
     
         # Temporarily set context to the subscription
@@ -48,9 +35,25 @@ function ListRole {
     
         if ($Assignments) {
             $Assignments
-        }
-        else {
-            Write-Host "No assignments found in this subscription." -ForegroundColor Gray
+        } else {
+            Write-Host "No role assignments found for $IdentityName in subscription $SubId."
         }
     }
+}
+
+# 1. Configuration
+#$BaseName = "fo-tfdmtarget"
+$Environments = "test", "qa", "prod"
+
+# Generate the list using a loop
+$IdentityList = if ($IdentityName) {
+    $IdentityName
+} else {
+    foreach ($Env in $Environments) {
+        "{0}-{1}-identity" -f $IdentityBaseName, $Env
+    }
+}
+
+foreach($IdName in $IdentityList){
+    ListRole -IdentityName $IdName -Subscriptions $Subs
 }
