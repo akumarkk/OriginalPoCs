@@ -1,0 +1,26 @@
+[
+  {
+    "schemaId": "builtin:anomaly-detection.metric-events",
+    "scope": "ENVIRONMENT",
+    "value": {
+      "enabled": true,
+      "summary": "Http403 > dynamic threshold - travel-test-func-westus2",
+      "metricSelector": "builtin:service.errors.server.status403:filter(eq(service.name, \"SERVICE-YOUR-ENTITY-ID\"))",
+      "metricId": "Http403_Azure_Func_Alert_Travel",
+      "monitoringStrategy": {
+        "type": "AUTO_ADAPTIVE_THRESHOLD",
+        "signalBoost": false,
+        "alertCondition": "ABOVE",
+        "alertingSamplingWindowMinutes": 5,
+        "violatingSamples": 3,
+        "tolerance": "MEDIUM"
+      },
+      "eventTemplate": {
+        "title": "Http403 > dynamic threshold violated on travel-test-func-westus2",
+        "description": "The HTTP 403 error rate for travel-test-func-westus2 has exceeded the dynamic threshold.",
+        "severity": "ERROR",
+        "eventType": "PERFORMANCE_EVENT"
+      }
+    }
+  }
+]
