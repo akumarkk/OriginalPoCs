@@ -1,5 +1,5 @@
-$EnvId = $env:DYNATRACE_ENV_ID
-$ApiToken = $env:DYNATRACE_API_TOKEN
+$EnvId = ""
+$ApiToken = ""
 
 # Fallback check if environment variables aren't set in your current terminal session
 if (-not $EnvId -or -not $ApiToken) {
@@ -19,32 +19,24 @@ $Headers = @{
 $Body = @"
 [
   {
-    "schemaId": "builtin:alerting-profiles",
+    "schemaId": "builtin:alerting.profile",
     "scope": "environment",
     "value": {
       "name": "Travel-Instant-Alerting-Profile",
-      "rules": [
+      "severityRules": [
         {
-          "severityLevel": "ERROR",
-          "tagFilter": {
-            "includeMode": "NONE",
-            "tags": []
-          },
-          "delayInMinutes": 0
+          "delayInMinutes": 0,
+          "severityLevel": "ERRORS",
+          "tagFilterIncludeMode": "NONE",
+          "tagFilter": []
         },
         {
-          "severityLevel": "CUSTOM",
-          "tagFilter": {
-            "includeMode": "NONE",
-            "tags": []
-          },
-          "delayInMinutes": 0
+          "delayInMinutes": 0,
+          "severityLevel": "CUSTOM_ALERT",
+          "tagFilterIncludeMode": "NONE",
+          "tagFilter": []
         }
-      ],
-      "loadControlSettings": {
-        "customAlertLimit": 50,
-        "predefinedAlertLimit": 10
-      }
+      ]
     }
   }
 ]
