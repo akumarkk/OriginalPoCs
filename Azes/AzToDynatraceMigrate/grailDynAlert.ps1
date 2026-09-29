@@ -3,8 +3,9 @@
 # ==========================================
 
 # 1. Configuration Variables
-$TenantUrl   = "https://{YourEnvironmentId}.apps.dynatrace.com"
-$ApiToken    = "dt0c01.YOUR_API_TOKEN_HERE"
+$TenantId    = ""
+$TenantUrl   = "https://$TenantId.apps.dynatrace.com"
+$ApiToken    = "dt0s16.AAZCPDYP."
 $AppName     = ""
 $AlertTitle  = "$AppName High HTTP 4xx Error Count Alert"
 $Threshold   = 50  # Adjust violation threshold as needed
@@ -26,19 +27,19 @@ $Payload = @(
             description       = "$AppName Automated alert for HTTP 4xx client errors exceeding threshold."
             source            = "DQL_Custom_Alert"
             executionSettings = @{
-                queryOffset = 0
+                queryOffset = 1
             }
             analyzer          = @{
                 name  = "dt.statistics.ui.anomaly_detection.StaticThresholdAnomalyDetectionAnalyzer"
-                input = @{
-                    query              = $DqlQuery
-                    threshold          = [double]$Threshold
-                    alertCondition     = "ABOVE"
-                    slidingWindow      = 5
-                    violatingSamples   = 3
-                    dealertingSamples  = 5
-                    alertOnMissingData = $false
-                }
+                input = @(
+                    @{ key = "query";              value = $DqlQuery }
+                    @{ key = "threshold";          value = "$Threshold" }
+                    @{ key = "alertCondition";     value = "ABOVE" }
+                    @{ key = "slidingWindow";      value = "5" }
+                    @{ key = "violatingSamples";   value = "3" }
+                    @{ key = "dealertingSamples";  value = "5" }
+                    @{ key = "alertOnMissingData"; value = "false" }
+                )
             }
             eventTemplate     = @{
                 properties = @(
@@ -48,7 +49,14 @@ $Payload = @(
             }
         }
     }
-) | ConvertTo-Json -Depth 10
+)
+
+# Serialize as a JSON array. In Windows PowerShell 5.1 a single-element array is
+# unwrapped to a bare object by ConvertTo-Json, which the Settings API rejects.
+$Payload = $Payload | ConvertTo-Json -Depth 10
+if ($Payload.TrimStart() -notlike '`[*') {
+    $Payload = "[$Payload]"
+}
 
 # 4. API Endpoint & Headers
 $Uri = "$TenantUrl/platform/classic/environment-api/v2/settings/objects"
@@ -60,7 +68,7 @@ $Headers = @{
 # 5. Execute Request
 try {
     Write-Host "Sending request to Dynatrace Settings API..." -ForegroundColor Cyan
-    $Response = Invoke-RestMethod -Uri $Uri -Method Post -Headers $Headers -Body $Payload
+    $Response = Invoke-RestMethod -Uri $Uri -Method Post -Headers $Headers -Body ([System.Text.Encoding]::UTF8.GetBytes($Payload))
     
     Write-Host "Alert successfully created!" -ForegroundColor Green
     Write-Host "Created Object ID: $($Response[0].objectId)" -ForegroundColor Yellow
