@@ -21,6 +21,7 @@ class Program
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseSqlServer("Server=tcp:nonexistent.database.windows.net,1433;Database=TestDb;User ID=test;Password=test;")
             .AddInterceptors(new DatabaseFallbackInterceptor())
+            .AddInterceptors(new DatabaseConnectionInterceptor())
             .Options;
 
         using var context = new AppDbContext(options);
@@ -88,6 +89,31 @@ public class DatabaseFallbackInterceptor : IDbCommandInterceptor
     }
 
     public void CommandFailed(DbCommand command, CommandErrorEventData eventData) { }
+}
+
+// Use IDbConnectionInterceptor to catch connection-level failures
+public class DatabaseConnectionInterceptor : IDbConnectionInterceptor
+{
+    public static bool IsDatabaseOffline { get; private set; } = false;
+
+    public async Task ConnectionFailedAsync(
+        DbConnection connection, 
+        ConnectionErrorEventData eventData, 
+        CancellationToken cancellationToken = default)
+    {
+        IsDatabaseOffline = true;
+
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine($"\n[INTERCEPTOR] Connection failed! Setting offline flag. Error: {eventData.Exception.Message}");
+        Console.ResetColor();
+
+        await Task.CompletedTask;
+    }
+
+    public void ConnectionFailed(DbConnection connection, ConnectionErrorEventData eventData)
+    {
+        IsDatabaseOffline = true;
+    }
 }
 
 // 2. Entity and DbContext definition
