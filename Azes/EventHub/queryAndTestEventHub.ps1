@@ -18,7 +18,8 @@ param(
     [int]$ReceiveTimeoutSeconds = 30
 )
 
-$ErrorActionPreference = "Stop"
+# Not "Stop": in PS 5.1 native stderr (even with 2>$null) becomes a terminating error; exit codes are checked explicitly.
+$ErrorActionPreference = "Continue"
 
 function Assert-Az {
     if ($LASTEXITCODE -ne 0) { throw "Azure CLI command failed (exit code $LASTEXITCODE)." }
@@ -64,7 +65,7 @@ $signature = [Convert]::ToBase64String($hmac.ComputeHash([Text.Encoding]::UTF8.G
 $sasToken = "SharedAccessSignature sr=$encodedUri&sig=$([uri]::EscapeDataString($signature))&se=$expiry&skn=$AuthRuleName"
 
 Write-Host "Sending test message (id=$marker)..." -ForegroundColor Cyan
-Invoke-RestMethod -Method Post -Uri "$resourceUri/messages" `
+Invoke-RestMethod -ErrorAction Stop -Method Post -Uri "$resourceUri/messages" `
     -Headers @{ Authorization = $sasToken } `
     -ContentType "application/atom+xml;type=entry;charset=utf-8" `
     -Body $body | Out-Null
