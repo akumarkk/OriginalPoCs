@@ -12,7 +12,8 @@ param(
     [Parameter(Mandatory)] [string] $VaultName
 )
 
-$ErrorActionPreference = 'Stop'
+# 'Stop' turns az stderr into a terminating error on PS 5.1; exit codes are checked explicitly.
+$ErrorActionPreference = 'Continue'
 
 $functions = '', ''
 $names = foreach ($kind in 'ClientID', 'ClientSecret') { foreach ($f in $functions) { "Prefix-$kind-$f" } }
