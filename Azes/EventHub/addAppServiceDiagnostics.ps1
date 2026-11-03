@@ -25,6 +25,7 @@ param(
     [string]$DiagnosticSettingName = "send-logs-to-eventhub"
 )
 
+
 # Not "Stop": in PS 5.1 native stderr (even with 2>$null) becomes a terminating error; exit codes are checked explicitly.
 $ErrorActionPreference = "Continue"
 
