@@ -35,6 +35,10 @@ flowchart TB
     LB --> I3
 ```
 
+
+The scaling unit never changed: it was, and remains, the worker VM. Containers were introduced as a better isolation and packaging mechanism on the worker, not as a new scaling model.
+So when you scale App Service instances, you're conceptually doing what users did in 2013 with IIS sites: adding worker VMs. The container just changed what runs on the worker (an IIS site became a Docker container on Linux), not how many things run or how scaling works.
+
 ---
 
 ## 2. Key Terminology
