@@ -94,6 +94,40 @@ With **multiple apps** (or running slots): **container count > instance count**.
 | Plan with 0 apps | N | 0 | Still billed (except Free/Shared tiers) |
 | Windows (non-container) | N | 0 containers; N worker processes (w3wp) | No Docker container, IIS worker process |
 
+### 3.3.1 Example: 7 containers on 2 VMs, but never 7 replicas of one app
+
+Plan: 2 instances (VM1, VM2). Total containers can still reach 7, but only as a mix of different apps.
+
+| App | Instances it runs on | Containers |
+|---|---|---|
+| App A | VM1, VM2 | 2 |
+| App B | VM1, VM2 | 2 |
+| App C | VM1, VM2 | 2 |
+| App D (per-app scaling = 1) | VM1 only | 1 |
+| **Total** | 2 VMs | **7** |
+
+```mermaid
+flowchart LR
+    subgraph VM1["VM 1"]
+        A1[App A]
+        B1[App B]
+        C1[App C]
+        D1[App D]
+    end
+    subgraph VM2["VM 2"]
+        A2[App A]
+        B2[App B]
+        C2[App C]
+    end
+```
+
+Conclusion:
+
+- Replicas of any single app = number of instances it runs on (max 2 here). Not 7.
+- 7 is the sum across different apps; every container shares the 2 VMs' CPU and RAM.
+- Sidecars and running slots also add to the total, but are not replicas of the app.
+- To get 7 replicas of one app: scale out the plan to 7 instances, or use Azure Container Apps / AKS, where replica count is independent of VM count.
+
 ### 3.4 Things that are internal / not controllable
 
 - You cannot say "run 5 containers of my app on 1 instance" through App Service. Increase throughput by **scaling out** (more instances) or **scaling up**.
