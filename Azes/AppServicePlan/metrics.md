@@ -1,0 +1,3 @@
+###### metrics
+
+https://learn.microsoft.com/en-us/azure/azure-monitor/reference/supported-metrics/microsoft-web-serverfarms-metrics
