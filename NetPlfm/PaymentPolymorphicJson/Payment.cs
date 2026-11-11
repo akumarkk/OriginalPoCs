@@ -1,5 +1,39 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Collections.Generic;
+
+/// <summary>
+/// Picks DapPaymentV2 when "paymentDetails" is present, otherwise PaymentV2; writes the runtime type.
+/// </summary>
+public class PaymentV2Converter : JsonConverter<PaymentV2>
+{
+    private JsonSerializerOptions? _inner;
+
+    // Copy of the options without this converter, to avoid infinite recursion
+    private JsonSerializerOptions Inner(JsonSerializerOptions options)
+    {
+        if (_inner is null)
+        {
+            var copy = new JsonSerializerOptions(options);
+            copy.Converters.Remove(this);
+            _inner = copy;
+        }
+        return _inner;
+    }
+
+    public override PaymentV2? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        using var doc = JsonDocument.ParseValue(ref reader);
+        var root = doc.RootElement;
+        var target = root.TryGetProperty("paymentDetails", out _) ? typeof(DapPaymentV2) : typeof(PaymentV2);
+        return (PaymentV2?)root.Deserialize(target, Inner(options));
+    }
+
+    public override void Write(Utf8JsonWriter writer, PaymentV2 value, JsonSerializerOptions options)
+    {
+        JsonSerializer.Serialize(writer, value, value.GetType(), Inner(options));
+    }
+}
 
 /// <summary>
 /// Base class representing payment information

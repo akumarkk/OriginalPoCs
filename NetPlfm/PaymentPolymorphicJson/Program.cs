@@ -3,7 +3,7 @@
 var options = new JsonSerializerOptions
 {
     WriteIndented = true,
-    AllowOutOfOrderMetadataProperties = true
+    Converters = { new PaymentV2Converter() }
 };
 
 // 1. Instantiate DapPaymentV2 as PaymentV2, serialize and deserialize
@@ -23,7 +23,7 @@ Console.WriteLine(json);
 PaymentV2? roundTrip = JsonSerializer.Deserialize<PaymentV2>(json, options);
 Console.WriteLine($"Round-trip type: {roundTrip?.GetType().Name}");
 
-// 2. Deserialize from a raw JSON string carrying the DapPaymentV2 type discriminator
+// 2. Deserialize from a raw JSON string; the converter infers DapPaymentV2 from "paymentDetails"
 const string dapJson = """
 {
   "paymentId": "PAY-002",
